@@ -5,7 +5,7 @@
  * e integración tolerante a fallos con APIs de terceros.
  */
 
-const API_URL = 'https://ecommerce-analytics-dashboard-v6na.onrender.com';
+const API_URL = 'https://ecommerce-analytics-dashboard-v6na.onrender.com/api';
 let salesChartInstance = null;
 
 // --- 1. SEGURIDAD, ACCESO Y MIDDLEWARE DE CLIENTE ---

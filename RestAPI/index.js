@@ -2,52 +2,50 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // 1. Importamos JWT
+const jwt = require('jsonwebtoken'); 
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Clave secreta para firmar los tokens (En producción debe ir en el .env)
+// Clave secreta para firmar los tokens
 const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_secreta_super_segura_com6023m';
 
-// --- CONFIGURACIÓN DE BASE DE DATOS ---
+// --- CONFIGURACIÓN DE BASE DE DATOS ACTUALIZADA ---
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || '220204',
-    database: process.env.DB_NAME || 'ecommerce_analytics',
+    user: process.env.DB_USER || 'avnadmin', // Cambiado a 'avnadmin' por defecto para Aiven
+    password: process.env.DB_PASSWORD || 'AVNS_Gd-83Iaxbl9YMo73766', // <-- Nueva contraseña por defecto
+    database: process.env.DB_NAME || 'defaultdb',                  // <-- Cambiado a 'defaultdb' de Aiven
+    port: parseInt(process.env.DB_PORT) || 28836,                 // <-- Nuevo puerto de Aiven por defecto
     waitForConnections: true,
     connectionLimit: 10
 }).promise();
 
 
-// --- 2. MIDDLEWARE DE AUTENTICACIÓN (EL GUARDIÁN) ---
+// --- MIDDLEWARE DE AUTENTICACIÓN (EL GUARDIÁN) ---
 function authenticateToken(req, res, next) {
-    // Buscamos el token en las cabeceras de la petición (Authorization Header)
     const authHeader = req.headers['authorization'];
-    // El formato estándar de la industria es: "Bearer ENORME_CADENA_DEL_TOKEN"
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ error: "Acceso denegado: Token no provisto" });
     }
 
-    // Verificamos si el token es real y no ha expirado
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
             return res.status(403).json({ error: "Token inválido o expirado" });
         }
-        req.user = user; // Guardamos los datos del usuario en la petición por si los necesitamos
-        next(); // ¡Todo bien! Dejamos pasar la petición a la ruta real
+        req.user = user; 
+        next(); 
     });
 }
 
 
 // --- RUTAS DE LA API ---
 
-// Login modificado para generar el Token JWT
+// Login
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -57,25 +55,22 @@ app.post('/api/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, rows[0].password);
         if (!isMatch) return res.status(401).json({ error: "Contraseña incorrecta" });
         
-        // --- AQUÍ GENERAMOS EL TOKEN ---
-        // Guardamos el id y el username dentro del token y configuramos que expire en 2 horas
+        // Generar Token
         const token = jwt.sign(
             { id: rows[0].id, username: rows[0].username }, 
             JWT_SECRET, 
             { expiresIn: '2h' }
         );
 
-        // Devolvemos el token al cliente
         res.json({ message: "Login exitoso", token: token });
 
     } catch (error) {
-        res.status(500).json({ error: "Error en el servidor" });
+        console.error("Fallo en login:", error); 
+        res.status(500).json({ error: "Error en el servidor", details: error.message });
     }
 });
 
-// --- RUTAS PROTEGIDAS CON EL MIDDLEWARE ---
-// Nota cómo agregamos 'authenticateToken' antes de la función asíncrona. 
-// Ahora nadie podrá ver ni modificar nada sin un token válido.
+// --- RUTAS PROTEGIDAS ---
 
 app.get('/api/products', authenticateToken, async (req, res) => {
     try {
@@ -163,6 +158,6 @@ app.delete('/api/sales/:sale_id/:product_id', authenticateToken, async (req, res
     } catch (error) { res.status(500).json({ error: "Error" }); }
 });
 
-// Iniciar Servidor
-const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 API Tokenizada corriendo en http://localhost:${PORT}`));
+// --- PUERTO ADAPTADO PARA RENDER ---
+const PORT = process.env.PORT || 3000; 
+app.listen(PORT, () => console.log(`🚀 API corriendo en el puerto ${PORT}`));

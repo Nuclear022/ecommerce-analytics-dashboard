@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - E-commerce Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-900 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-96">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
+        <form id="login-form" class="space-y-4">
+            <input type="text" id="user" placeholder="Usuario" class="w-full border p-2 rounded" required>
+            <input type="password" id="pass" placeholder="Contraseña" class="w-full border p-2 rounded" required>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Entrar</button>
+        </form>
+        <p id="login-error" class="text-red-500 mt-4 text-center hidden"></p>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Ocultar el mensaje de error anterior antes de cada intento
+            document.getElementById('login-error').classList.add('hidden');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: document.getElementById('user').value.trim(),
+                        password: document.getElementById('pass').value
+                    })
+                });
+
+                if (response.ok) {
+                    // 1. Extraemos la respuesta JSON enviada por el servidor
+                    const data = await response.json();
+                    
+                    // 2. Guardamos el token criptográfico real (JWT) recibido
+                    localStorage.setItem('userToken', data.token); 
+                    
+                    // 3. Mantenemos el flag de sesión antigua para compatibilidad
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    // 4. Redirección automática al panel del dashboard
+                    window.location.href = 'index.html';
+                } else {
+                    // Captura los errores enviados por tu servidor (ej: "Usuario no encontrado")
+                    const err = await response.json();
+                    document.getElementById('login-error').textContent = err.error || "Credenciales incorrectas";
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error en la conexión con la API de login:", error);
+                document.getElementById('login-error').textContent = "Error de conexión con el servidor";
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Ventas E-commerce - COM6023M</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <nav class="bg-blue-700 text-white p-4 shadow-lg mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Dashboard de Analítica</h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-bold transition duration-300">
+                Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 space-y-6">
+                
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Añadir Producto</h2>
+                    <form id="product-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                            <input type="text" id="name" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Precio ($)</label>
+                            <input type="number" id="price" step="0.01" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ID Categoría (1-6)</label>
+                            <input type="number" id="category_id" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">
+                            Guardar Producto
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Registrar Venta</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ID del Producto</label>
+                            <input type="number" id="sale_product_id" placeholder="Ej: 1" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+                            <input type="number" id="sale_qty" placeholder="Ej: 5" class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <button onclick="addSale()" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg hover:bg-green-700 transition">
+                            Registrar Venta
+                        </button>
+                    </div>
+                </div>
+
+                <div id="status-msg" class="mt-4 text-center hidden p-3 rounded-lg font-bold shadow-sm"></div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-8">
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800 text-center">Rendimiento de Ingresos</h2>
+                    <div style="position: relative; height:300px; width:100%;">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b bg-gray-50">
+                        <h2 class="text-xl font-semibold text-gray-800">Inventario Actual</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-3">Producto</th>
+                                    <th class="px-6 py-3">Categoría</th>
+                                    <th class="px-6 py-3">Precio</th>
+                                    <th class="px-6 py-3 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body" class="divide-y text-gray-700 bg-white">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-blue-800 to-indigo-900 p-6 rounded-xl shadow-md text-white my-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold tracking-wide uppercase text-blue-200 text-xs">Servicio Externo Integrado (Live API)</h3>
+                            <h2 class="text-2xl font-extrabold mt-1">Conversión de Divisas del Negocio</h2>
+                            <p class="text-sm text-gray-300 mt-1">Tipos de cambio oficiales provistos en tiempo real por el Banco Central Europeo.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4 md:mt-0 text-center">
+                            <div class="bg-white/10 px-6 py-3 rounded-lg backdrop-blur-sm">
+                                <span class="block text-xs uppercase font-bold text-indigo-200">Total en Euros</span>
+                                <span id="currency-eur" class="text-xl font-black text-green-300">Cargando...</span>
+                            </div>
+                            <div class="bg-white/10 px-6 py-3 rounded-lg backdrop-blur-sm">
+                                <span class="block text-xs uppercase font-bold text-indigo-200">Total en Libras</span>
+                                <span id="currency-gbp" class="text-xl font-black text-amber-300">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b bg-gray-50">
+                        <h2 class="text-xl font-semibold text-gray-800">Gestión de Ventas</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-3">Producto</th>
+                                    <th class="px-6 py-3">Cantidad</th>
+                                    <th class="px-6 py-3">Total Ingreso</th>
+                                    <th class="px-6 py-3 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body" class="divide-y text-sm text-gray-700 bg-white">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

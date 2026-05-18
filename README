@@ -41,4 +41,97 @@ function getAuthHeaders() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
     };
+
+Guard Middleware Protection: Sub-resource requests made to backend modules such as /api/products or /api/analytics are routed through a server-side authentication proxy that checks signatures and denies traffic with a 401 Unauthorized status code if malicious or malformed parameters are encountered.
+
+📊 Core Application Features
+1. Robust Core Inventory & Analytics Engine
+Products Management (CRUD): Fully responsive control surface allowing for real-time additions, read outputs via custom relational joins, in-place inline DOM transformations for rapid record edits (PUT), and structural integrity-protected deletions (DELETE).
+
+Interactive Financial Analytics: Aggregates real-time sales performance metrics from transaction histories, generating visual metric insights on top-selling inventory groups through customizable Chart.js modules.
+
+2. Architectural Resilience & Fault Tolerance
+Built to interact with foreign endpoints such as the Frankfurter Financial API to calculate real-time gross revenue transformations from USD ($) bases into Euro (€) and British Pound Sterling (£).
+
+Implements defensive validation safeguards against connection timeouts or external provider drops. If a third-party microservice encounters a network fault, the user interface remains responsive via local try-catch error fallback blocks:
+
+JavaScript
+} catch (error) {
+    console.error("Graceful fault handling on external currency endpoint:", error);
+    eurEl.textContent = "Service Unavailable";
+    gbpEl.textContent = "Service Unavailable";
+}
+🗄️ Database Schema Representation (DDL)
+The underlying cloud infrastructure uses highly optimized data schemas configured for ACID compliance with InnoDB Engines (utf8mb4 character distributions):
+
+SQL
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INT DEFAULT 0,
+    category_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+🚀 Installation & Local Environment Setup
+To mirror the architecture configuration on a local workstation, follow these steps:
+
+Prerequisites
+Ensure Node.js (v18.x or above) is installed.
+
+Ensure a running instance of a MySQL server is accessible.
+
+1. Repository Clone & Dependency Provisioning
+Bash
+# Clone the repository using the production branch link
+git clone [https://github.com/Nuclear022/ecommerce-analytics-dashboard.git](https://github.com/Nuclear022/ecommerce-analytics-dashboard.git)
+cd ecommerce-analytics-dashboard/RestAPI
+
+# Install Node.js runtime packages
+npm install
+2. Database Synchronization
+Open your query tool connected to your target SQL workspace.
+
+Import and run the structural layout configurations defined in RestAPI-SQL.sql.
+
+3. Environment Environment Configurations (.env)
+Create an environmental configuration text file named .env within your root backend repository tree:
+
+Fragmento de código
+PORT=3000
+DB_HOST=your-cloud-database-hostname.com
+DB_USER=your_secure_user_id
+DB_PASSWORD=your_secure_db_password
+DB_NAME=defaultdb
+DB_PORT=28836
+JWT_SECRET=your_high_entropy_cryptographic_signing_key_secret_string
+4. Running the Project
+Bash
+# Spin up the local development listener
+npm run dev
+
+# Alternative production runtime execution
+node index.js
+Open your deployment host links or web proxy servers locally to interact with the frontend panels.
+
+🎯 Verification Credentials & Default Access Parameters
+To run security integration verifications against live database connections, access endpoints utilizing the following testing context metrics:
+
+Admin Access Endpoint Identity: admin
+
+Default Proof-of-Concept Target Password: admin123
 }

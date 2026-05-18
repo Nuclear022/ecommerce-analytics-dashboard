@@ -1,0 +1,44 @@
+# Secure E-Commerce Analytics Dashboard & REST API
+### Advanced Web Development (COM6023M) - Level 6 Assignment
+
+A robust, enterprise-grade, full-stack web application featuring secure JWT-based session architecture, complete CRUD functionalities for inventory management, dynamic analytics data visualization via Chart.js, and an asynchronous, fault-tolerant integration with third-party currency conversion financial APIs.
+
+---
+
+## 💻 Architecture Overview
+
+The system is engineered as a decoupled client-server architecture split into two principal layers:
+
+1. **Backend Service (REST API):** Built on Node.js and Express, configured for high availability, utilizing connection pooling to interface with a managed Cloud MySQL infrastructure. Secure tokenization is handled via JSON Web Tokens (JWT) using the cryptographic HMAC SHA-256 algorithm.
+2. **Frontend client (Web Client Application):** A modern single-page-style dashboard engineered completely in vanilla JavaScript and styled with Tailwind CSS, utilizing asynchronous operations (`async/await`) and native Browser Storage APIs for session lifecycle preservation.
+
+---
+
+## 🛠️ Technological Stack
+
+* **Frontend:** HTML5, Tailwind CSS, JavaScript (ES6+ Vanilla), Chart.js (Data Visualization Architecture).
+* **Backend Runtime:** Node.js v24.x & Express.js.
+* **Database Infrastructure:** Managed Cloud MySQL Enterprise Cluster hosted via Aiven.io.
+* **Cryptography & Security:** JSON Web Tokens (`jsonwebtoken`), Bcrypt (Salt Round Factor: 10), Cross-Origin Resource Sharing (`cors`) Middleware.
+* **External Integration:** Frankfurter API (Asynchronous REST Exchange Layer).
+* **Deployment Systems:** * API / Production Database Pipelines: **Render** (Continuous Deployment Cloud platform).
+  * Web Client Production Hosting: **Vercel** (Edge Network CDN optimization).
+
+---
+
+## 🔒 Security & Session Middleware Design
+
+The platform enforces rigid industry standards regarding state-less authentication:
+
+* **Password Hashing:** Passwords are never stored in plaintext. They undergo one-way cryptographic salting and hashing utilizing `bcrypt` prior to persistent storage within the Cloud DB cluster.
+* **JWT Access Control Layer:** Successful validation of user credentials generates a unique, cryptographically signed Bearer Token encapsulating payload indices and temporal constraints (`expiresIn: '2h'`).
+* **Automated HTTP Header Interception:** The client-side application injects this payload dynamically into downstream resource requests using an automated helper context wrapper:
+
+```javascript
+function getAuthHeaders() {
+    const token = localStorage.getItem('userToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}

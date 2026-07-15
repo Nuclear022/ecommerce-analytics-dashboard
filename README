@@ -135,3 +135,6 @@ Admin Access Endpoint Identity: admin
 
 Default Proof-of-Concept Target Password: admin123
 }
+
+User admin
+Password admin123
